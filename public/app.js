@@ -36,14 +36,23 @@
     if (map) return;
     const [s, w, n, e] = region.bbox;
     map = L.map("map", { zoomControl: false, attributionControl: false }).fitBounds([[s, w], [n, e]]);
-    // Batimetría GEBCO (WMS, capa más reciente: relieve sombreado)
+    // Batimetría GEBCO (WMS público, sin clave; capa más reciente: relieve sombreado)
     L.tileLayer.wms("https://wms.gebco.net/mapserv?", {
-      layers: "GEBCO_LATEST", format: "image/png", maxZoom: 13,
+      layers: "gebco_latest", format: "image/png", maxZoom: 13,
     }).addTo(map);
-    // Etiquetas de ciudades y costa encima de la batimetría
-    L.tileLayer("https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png", {
-      subdomains: "abcd", maxZoom: 13, pane: "overlayPane",
-    }).addTo(map);
+    // Nombres de localidades costeras (dibujados aquí, sin servicios externos)
+    const places = [
+      ["Dichato", -36.546, -72.933], ["Tomé", -36.617, -72.957], ["Penco", -36.739, -72.995],
+      ["Talcahuano", -36.724, -73.117], ["Concepción", -36.827, -73.050], ["Coronel", -37.030, -73.150],
+      ["Lota", -37.091, -73.157], ["Arauco", -37.247, -73.317], ["Lebu", -37.608, -73.651],
+      ["Isla Santa María", -37.030, -73.530], ["Tirúa", -38.343, -73.493],
+    ];
+    for (const [n, la, lo] of places) {
+      L.marker([la, lo], {
+        interactive: false, keyboard: false,
+        icon: L.divIcon({ className: "place", html: `<span>${n}</span>`, iconSize: null }),
+      }).addTo(map);
+    }
     L.control.zoom({ position: "bottomright" }).addTo(map);
     layer = L.layerGroup().addTo(map);
     $("legend").innerHTML =

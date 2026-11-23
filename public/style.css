@@ -51,3 +51,11 @@ body { margin: 0; background: var(--bg); color: var(--ink); padding-bottom: env(
 .foot { text-align: center; color: var(--muted); font-size: .75rem; padding: 8px 16px 24px; }
 /* GEBCO: atenuar un poco el relieve para que los marcadores destaquen */
 .leaflet-tile-pane .leaflet-layer:first-child { filter: saturate(.85) brightness(1.02); }
+/* Nombres de localidades sobre la batimetría */
+.place span { position: relative; left: 6px; top: -8px; white-space: nowrap; font: 600 11px system-ui, sans-serif; color: #1f2d36; text-shadow: 0 0 3px #fff, 0 0 3px #fff, 0 0 2px #fff; }
+.place::before { content: ""; position: absolute; width: 5px; height: 5px; border-radius: 50%; background: #1f2d36; border: 1px solid #fff; left: -3px; top: -3px; }
+/* Logos institucionales (fondo blanco siempre, también en modo oscuro) */
+.logos { background: #fff; padding: 10px 16px; display: flex; justify-content: center; border-bottom: 1px solid #e1e8ed; }
+.logos img { width: 100%; max-width: 420px; height: auto; display: block; }
+.credit { margin: 0 0 6px; font-size: .8rem; color: var(--ink); }
+.credit a { color: var(--accent); }

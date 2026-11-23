@@ -13,6 +13,9 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <div class="logos">
+    <img src="logos.png" alt="Universidad de Concepción · COPAS Coastal" width="871" height="140">
+  </div>
   <header class="top">
     <div>
       <h1>Temperatura superficial del mar</h1>
@@ -41,7 +44,8 @@
   <ul id="list" class="list"></ul>
 
   <footer class="foot">
-    <span id="count"></span> · Datos: Sofar Spotter API, ERDDAP, FVON · Batimetría: GEBCO Compilation Group (2026) GEBCO_2026 Grid · Etiquetas © OpenStreetMap, © CARTO
+    <p class="credit">Creado por D. Narváez (<a href="mailto:dnarvaez@oceanografia.udec.cl">dnarvaez@oceanografia.udec.cl</a>)</p>
+    <span id="count"></span> · Datos: Sofar Spotter API, ERDDAP, FVON · Batimetría: GEBCO Compilation Group (2026) GEBCO_2026 Grid
   </footer>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
