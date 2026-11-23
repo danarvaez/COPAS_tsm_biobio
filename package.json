@@ -1,0 +1,8 @@
+{
+  "name": "sst-biobio",
+  "private": true,
+  "type": "module",
+  "scripts": { "start": "node --env-file-if-exists=.env server.mjs",
+    "build-data": "node --env-file-if-exists=.env scripts/build-data.mjs" },
+  "engines": { "node": ">=22.9" }
+}
