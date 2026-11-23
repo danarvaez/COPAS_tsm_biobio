@@ -22,9 +22,12 @@ export default {
   // Token comes from the SOFAR_TOKEN environment variable.
   sofar: {
     enabled: true,
-    // List specific Spotter IDs, or leave empty to use every Spotter
-    // on your account that is currently inside the region bbox.
+    // true: también se agregan todas las boyas de tu cuenta que estén dentro de la región.
+    autoDiscover: true,
+    // Boyas que se muestran SIEMPRE (aunque no estén en tu cuenta, estén fuera de la
+    // región o no tengan datos recientes; en ese caso la tarjeta muestra un aviso).
     spotters: [
+      { id: "SPOT-31491C" },
       // { id: "SPOT-1234", name: "Bahía de Concepción" },
     ],
   },
