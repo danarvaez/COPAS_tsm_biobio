@@ -36,6 +36,22 @@ export default {
   // One entry per sensor/station. Find these values on your ERDDAP
   // server's dataset page (…/erddap/tabledap/<datasetId>.html).
   erddap: [
+    // Global Drifter Program – boyas de deriva (tiempo casi real, vía GTS) desde el ERDDAP de
+    // NOAA OSMC. Último valor de cada boya que haya pasado por 35–38°S, 70–80°W.
+    {
+      name: "Deriva GDP",
+      sourceLabel: "Global Drifter Program (NOAA OSMC)",
+      server: "https://osmc.noaa.gov/erddap",
+      datasetId: "OSMC_30day",
+      mode: "latestByPlatform",
+      tempVar: "sst",
+      groupVar: "platform_code",             // ID WMO de cada boya
+      filters: { platform_type: "DRIFTING BUOYS (GENERIC)" },
+      bbox: [-38, -80, -35, -70],            // [sur, oeste, norte, este]
+      validRange: [5, 25],                   // °C
+      historyHours: 24 * 7,                  // buscar la última lectura en los últimos 7 días
+      staleAfterHours: 24,                   // gris si la boya no reporta hace más de 1 día
+    },
     // FVON – perfiles de temperatura de sensores en artes de pesca (tiempo casi real).
     // Plataformas móviles: por cada embarcación (WMO_ID) dentro de la región se muestra
     // solo el último valor superficial = la lectura más somera (≤ maxDepth) de su último perfil.
