@@ -1,12 +1,11 @@
-yaml
 name: Actualizar y publicar TSM Biobío
 
 on:
   schedule:
-    - cron: "*/30 * * * *"
-  workflow_dispatch:
+    - cron: "*/30 * * * *"   # cada 30 minutos (GitHub puede atrasarse unos minutos)
+  workflow_dispatch:          # botón "Run workflow" para correrlo a mano
   push:
-    branches: [main, master]
+    branches: [main]
 
 permissions:
   contents: read
