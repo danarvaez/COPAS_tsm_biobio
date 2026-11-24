@@ -2,10 +2,10 @@ name: Actualizar y publicar TSM Biobio
 
 on:
   schedule:
-    - cron: "*/30 * * * *"   # cada 30 minutos
-  workflow_dispatch:          # boton Run workflow
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
   push:
-    branches: [main]
+    branches: [main, master]
 
 permissions:
   contents: read
@@ -14,14 +14,11 @@ permissions:
 
 concurrency:
   group: pages
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
-  build-deploy:
+  build:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deploy.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -33,8 +30,18 @@ jobs:
           SOFAR_SPOTTERS: ${{ secrets.SOFAR_SPOTTERS }}
         run: node scripts/build-data.mjs
       - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v3
+      - name: Subir sitio
+        uses: actions/upload-pages-artifact@v4
         with:
           path: public
-      - id: deploy
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - name: Publicar en GitHub Pages
+        id: deploy
         uses: actions/deploy-pages@v4
