@@ -1,9 +1,9 @@
-name: Actualizar y publicar TSM Biobío
+name: Actualizar y publicar TSM Biobio
 
 on:
   schedule:
-    - cron: "*/30 * * * *"   # cada 30 minutos (GitHub puede atrasarse unos minutos)
-  workflow_dispatch:          # botón "Run workflow" para correrlo a mano
+    - cron: "*/30 * * * *"   # cada 30 minutos
+  workflow_dispatch:          # boton Run workflow
   push:
     branches: [main]
 
@@ -30,6 +30,7 @@ jobs:
       - name: Descargar lecturas de Sofar y ERDDAP/FVON
         env:
           SOFAR_TOKEN: ${{ secrets.SOFAR_TOKEN }}
+          SOFAR_SPOTTERS: ${{ secrets.SOFAR_SPOTTERS }}
         run: node scripts/build-data.mjs
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
