@@ -18,7 +18,7 @@ export default {
   // A reading older than this is shown as "stale" (grey).
   staleAfterHours: 6,
 
-  // ── Sofar Spotters ─────────────────────────────────────────
+  // ── Boyas COPAS (Sofar Spotters) ───────────────────────────
   // Token comes from the SOFAR_TOKEN environment variable.
   sofar: {
     enabled: true,
@@ -60,11 +60,11 @@ export default {
       groupVar: "platform_code",
       typeVar: "platform_type",
       types: {
-        "DRIFTING BUOYS":               { label: "Boya de deriva", source: "Global Drifter Program (GTS · NOAA OSMC)", staleAfterHours: 24 },
-        "PROFILING FLOATS AND GLIDERS": { label: "Flotador Argo",  source: "Argo (GTS · NOAA OSMC)",                   staleAfterHours: 24 * 11 },
-        "VOLUNTEER OBSERVING SHIPS":    { label: "Buque VOS",      source: "Buque de observación voluntaria (GTS)",    staleAfterHours: 48 },
-        "SHIPS":                        { label: "Buque",          source: "Buque (GTS · NOAA OSMC)",                  staleAfterHours: 48 },
-        "MOORED BUOYS":                 { label: "Boya fondeada",  source: "Boya fondeada (GTS · NOAA OSMC)",          staleAfterHours: 24 },
+        "DRIFTING BUOYS":               { category: "gdp",     label: "Boya de deriva", source: "Global Drifter Program (GTS · NOAA OSMC)", staleAfterHours: 24 },
+        "PROFILING FLOATS AND GLIDERS": { category: "argo",    label: "Flotador Argo",  source: "Argo (GTS · NOAA OSMC)",                   staleAfterHours: 24 * 11 },
+        "VOLUNTEER OBSERVING SHIPS":    { category: "buques",  label: "Buque VOS",      source: "Buque de observación voluntaria (GTS)",    staleAfterHours: 48 },
+        "SHIPS":                        { category: "buques",  label: "Buque",          source: "Buque (GTS · NOAA OSMC)",                  staleAfterHours: 48 },
+        "MOORED BUOYS":                 { category: "otros",   label: "Boya fondeada",  source: "Boya fondeada (GTS · NOAA OSMC)",          staleAfterHours: 24 },
       },
       bbox: [-42, -90, -30, -70],            // [sur, oeste, norte, este] = 30–42°S, 70–90°W
       validRange: [5, 25],                   // °C
@@ -75,7 +75,9 @@ export default {
     // solo el último valor superficial = la lectura más somera (≤ maxDepth) de su último perfil.
     {
       name: "FVON",
-      sourceLabel: "FVON (buques pesqueros)",
+      sourceLabel: "Barcos pesqueros (Fondef-COPAS-FVON)",
+      itemName: "Barco pesquero",
+      category: "fvon",
       server: "https://erddap.fvon.org/erddap",
       datasetId: "FVON_Profile_FV_NRT",
       mode: "profiles",
