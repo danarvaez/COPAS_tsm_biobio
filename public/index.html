@@ -10,7 +10,116 @@
   <link rel="icon" href="icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="icon.svg">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
-  <link rel="stylesheet" href="style.css?v=6">
+  <!-- Estilos de la página (van aquí mismo para no depender de otro archivo) -->
+  <style>
+:root {
+  --bg: #f4f7f9; --card: #fff; --ink: #10222e; --muted: #5d7180; --line: #e1e8ed;
+  --brand: #0b2a3c; --accent: #1479a8; --warn: #b45309; --stale: #9aa7b0;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #0b1820; --card: #12232e; --ink: #e6eef3; --muted: #93a7b5; --line: #20343f; --accent: #4cb3e0; }
+}
+* { box-sizing: border-box; }
+html, body { overflow-x: hidden; }
+body { margin: 0; background: var(--bg); color: var(--ink); padding-bottom: env(safe-area-inset-bottom); -webkit-font-smoothing: antialiased; }
+
+.top {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  background: var(--brand); color: #fff; padding: calc(14px + env(safe-area-inset-top)) 16px 14px;
+  position: sticky; top: 0; z-index: 1000;
+}
+.top h1 { margin: 0; font-size: 1.1rem; font-weight: 650; }
+.sub { margin: 2px 0 0; opacity: .75; font-size: .85rem; }
+.refresh { background: rgba(255,255,255,.12); border: 0; color: #fff; border-radius: 50%; width: 42px; height: 42px; display: grid; place-items: center; cursor: pointer; }
+.refresh.spin svg { animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.banner { margin: 10px 12px 0; padding: 10px 12px; border-radius: 10px; background: #e6f2f8; color: #0c4a6e; font-size: .85rem; }
+.banner.warn { background: #fef3c7; color: #78350f; }
+
+.summary .meta { min-width: 0; overflow-wrap: anywhere; }
+.summary { display: flex; align-items: center; gap: 16px; padding: 16px; margin: 12px; background: var(--card); border-radius: 14px; border: 1px solid var(--line); }
+.big { font-size: 3rem; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }
+.big small { font-size: 1.2rem; font-weight: 500; color: var(--muted); margin-left: 2px; }
+.lbl { font-weight: 600; }
+.muted { color: var(--muted); font-size: .9rem; }
+.small { font-size: .78rem; margin-top: 2px; }
+
+#map { height: 42vh; min-height: 240px; max-height: 420px; margin: 0 12px; border-radius: 14px; border: 1px solid var(--line); z-index: 0; }
+.legend { display: flex; align-items: center; gap: 8px; margin: 8px 16px 0; font-size: .75rem; color: var(--muted); }
+.legend .bar { flex: 1; height: 8px; border-radius: 4px; }
+
+
+.dot { border-radius: 50%; border: 2px solid #fff; box-shadow: 0 1px 4px rgba(0,0,0,.4); color: #fff; font: 700 11px system-ui; display: grid; place-items: center; }
+.tip { position: fixed; pointer-events: none; background: var(--ink); color: var(--bg); font-size: .75rem; padding: 4px 6px; border-radius: 6px; z-index: 2000; }
+.foot { text-align: center; color: var(--muted); font-size: .75rem; padding: 8px 16px 24px; }
+/* GEBCO: atenuar un poco el relieve para que los marcadores destaquen */
+.leaflet-tile-pane .leaflet-layer:first-child { filter: saturate(.85) brightness(1.02); }
+/* Nombres de localidades sobre la batimetría */
+.place span { position: relative; left: 6px; top: -8px; white-space: nowrap; font: 600 11px system-ui, sans-serif; color: #1f2d36; text-shadow: 0 0 3px #fff, 0 0 3px #fff, 0 0 2px #fff; }
+.place::before { content: ""; position: absolute; width: 5px; height: 5px; border-radius: 50%; background: #1f2d36; border: 1px solid #fff; left: -3px; top: -3px; }
+/* Logos institucionales (fondo blanco siempre, también en modo oscuro) */
+.logos { background: #fff; padding: 10px 16px; display: flex; justify-content: center; border-bottom: 1px solid #e1e8ed; }
+.logos img { width: 100%; max-width: 420px; height: auto; display: block; }
+.credit { margin: 0 0 6px; font-size: .8rem; color: var(--ink); }
+.credit a { color: var(--accent); }
+
+/* ── Sección de sensores: acordeón por categoría ───────────────────── */
+.sensors { margin: 18px 12px 0; }
+.sec-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin: 0 4px 8px; }
+.sec-head h2 { margin: 0; font-size: .8rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.sec-head span { font-size: .75rem; color: var(--muted); }
+
+.acc { background: var(--card); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; box-shadow: 0 1px 2px rgba(16,34,46,.04); }
+.group + .group { border-top: 1px solid var(--line); }
+.group > summary {
+  list-style: none; cursor: pointer; user-select: none;
+  display: grid; grid-template-columns: 4px 1fr auto 18px; align-items: center; gap: 0 12px;
+  padding: 13px 14px 13px 12px;
+}
+.group > summary::-webkit-details-marker { display: none; }
+.group > summary:hover { background: color-mix(in srgb, var(--accent) 5%, transparent); }
+.g-bar { align-self: stretch; border-radius: 2px; background: var(--stale); }
+.g-text { min-width: 0; }
+.g-title { display: block; font-weight: 650; font-size: .95rem; line-height: 1.25; }
+.g-meta { display: block; font-size: .75rem; color: var(--muted); margin-top: 2px; }
+.g-range { font-size: .9rem; font-weight: 650; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.g-range.none { color: var(--muted); font-weight: 500; }
+.g-chev { width: 18px; height: 18px; color: var(--muted); transition: transform .18s ease; }
+.group[open] .g-chev { transform: rotate(90deg); }
+.group[open] > summary { background: color-mix(in srgb, var(--accent) 4%, transparent); }
+
+.rows { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+.row {
+  display: grid; grid-template-columns: 58px 1fr 76px; align-items: center; gap: 0 12px;
+  padding: 10px 14px 10px 28px; cursor: pointer;
+}
+.row + .row { border-top: 1px solid var(--line); }
+.row:hover { background: color-mix(in srgb, var(--accent) 4%, transparent); }
+.pill { text-align: center; font-weight: 700; font-size: .95rem; font-variant-numeric: tabular-nums; color: #fff; border-radius: 8px; padding: 5px 0; }
+.pill.stale { background: var(--stale) !important; }
+.r-text { min-width: 0; }
+.r-name { font-weight: 600; font-size: .9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.r-sub { font-size: .72rem; color: var(--muted); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.r-sub.stale { color: var(--warn); }
+.row svg.spark { width: 76px; height: 28px; overflow: visible; }
+.r-err { grid-column: 2 / -1; font-size: .72rem; color: var(--warn); margin-top: 4px; }
+
+/* ── "¿Por qué algunos círculos están en gris?" ───────────────────── */
+.info { margin: 10px 12px 0; font-size: .82rem; }
+.info > summary { list-style: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; color: var(--accent); font-weight: 600; padding: 2px 4px; }
+.info > summary::-webkit-details-marker { display: none; }
+.info > summary::before { content: "i"; display: inline-grid; place-items: center; width: 16px; height: 16px; border-radius: 50%; border: 1.5px solid currentColor; font: 700 10px/1 Georgia, serif; }
+.info[open] > summary { margin-bottom: 8px; }
+.info-body { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; }
+.info p { color: var(--muted); margin: 0 0 10px; line-height: 1.45; }
+.info table { width: 100%; border-collapse: collapse; }
+.info th, .info td { text-align: left; vertical-align: top; padding: 7px 6px 7px 0; border-top: 1px solid var(--line); line-height: 1.35; }
+.info th { font-size: .7rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); font-weight: 700; border-top: 0; }
+.info td:nth-child(2) { white-space: nowrap; font-weight: 650; font-variant-numeric: tabular-nums; }
+.info td:nth-child(3) { color: var(--muted); }
+  </style>
 </head>
 <body>
   <div class="logos">
@@ -49,6 +158,7 @@
        ═══════════════════════════════════════════════════════════════════ -->
   <details class="info">
     <summary>¿Por qué algunos círculos están en gris?</summary>
+    <div class="info-body">
     <p>Un sensor se muestra en gris cuando su último dato es más antiguo que el límite de su tipo de fuente. No indica mala calidad: es la última medición real, pero ya no es reciente. Los sensores en gris no cuentan en el promedio regional.</p>
     <table>
       <thead>
@@ -63,9 +173,13 @@
         <tr><td>Flotadores Argo</td><td>11 días</td><td>Suben a la superficie una vez cada ~10 días.</td></tr>
       </tbody>
     </table>
+    </div>
   </details>
 
-  <div id="list" class="groups"></div>
+  <section class="sensors" aria-label="Sensores">
+    <div class="sec-head"><h2>Sensores</h2><span>Toca una categoría para ver el detalle</span></div>
+    <div id="list" class="acc"></div>
+  </section>
 
   <footer class="foot">
     <p class="credit">Creado por D. Narváez (<a href="mailto:dnarvaez@oceanografia.udec.cl">dnarvaez@oceanografia.udec.cl</a>)</p>
@@ -73,6 +187,6 @@
   </footer>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
-  <script src="app.js?v=7"></script>
+  <script src="app.js?v=8"></script>
 </body>
 </html>

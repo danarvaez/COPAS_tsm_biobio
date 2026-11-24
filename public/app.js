@@ -150,22 +150,26 @@
   ];
   const openGroups = new Set(); // recuerda qué grupos están abiertos entre actualizaciones
 
-  function card(s, staleH) {
-    const li = document.createElement("li"); li.className = "card";
-    const name = Object.assign(document.createElement("div"), { className: "name", textContent: s.name });
-    const val = document.createElement("div"); val.className = "val";
-    const src = Object.assign(document.createElement("div"), { className: "src", textContent: s.source });
-    const age = document.createElement("div"); age.className = "age";
+  const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+  const CHEVRON = '<svg class="g-chev" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="m9 6 6 6-6 6"/></svg>';
+
+  function row(s, staleH) {
+    const li = el("li", "row");
+    const pill = el("div", "pill");
+    const text = el("div", "r-text");
+    const sub = el("div", "r-sub");
+    text.append(el("div", "r-name", s.name), sub);
+    const detail = s.source.includes(" · ") ? s.source.split(" · ").slice(1).join(" · ") : "";
     if (s.latest) {
       const stale = isStale(s, staleH);
-      val.textContent = `${fmt(s.latest.v)}°`;
-      val.style.background = color(s.latest.v);
-      if (stale) { val.classList.add("stale"); age.classList.add("stale"); }
-      age.textContent = `${localTime(s.latest.t)} · ${ago(s.latest.t)}${stale ? " (sin datos recientes)" : ""}`;
-    } else { val.textContent = "—"; val.classList.add("stale"); }
-    li.append(name, val, src, age);
-    if (s.series?.length > 1) li.append(spark(s.series));
-    if (s.error) li.append(Object.assign(document.createElement("div"), { className: "err", textContent: s.error }));
+      pill.textContent = fmt(s.latest.v);
+      pill.style.background = color(s.latest.v);
+      if (stale) { pill.classList.add("stale"); sub.classList.add("stale"); }
+      sub.textContent = [ago(s.latest.t), localTime(s.latest.t), detail].filter(Boolean).join(" · ");
+      sub.title = `${s.source} · ${localTime(s.latest.t)}`;
+    } else { pill.textContent = "—"; pill.classList.add("stale"); sub.textContent = detail || "sin datos"; }
+    li.append(pill, text, s.series?.length > 1 ? spark(s.series) : el("span"));
+    if (s.error) li.append(el("div", "r-err", s.error));
     li.addEventListener("click", () => {
       const m = markers[s.id]; if (!m) return;
       map.setView(m.getLatLng(), 11); m.openPopup();
@@ -183,27 +187,27 @@
       items.sort((a, b) => (a.latest ? 0 : 1) - (b.latest ? 0 : 1) || a.name.localeCompare(b.name, "es", { numeric: true }));
       const live = items.filter((s) => s.latest && !isStale(s, staleH));
 
-      const det = document.createElement("details");
-      det.className = "group"; det.open = openGroups.has(key);
+      const det = el("details", "group"); det.open = openGroups.has(key);
       det.addEventListener("toggle", () => (det.open ? openGroups.add(key) : openGroups.delete(key)));
 
-      const sum = document.createElement("summary");
-      const title = Object.assign(document.createElement("span"), { className: "g-title", textContent: label });
-      const count = Object.assign(document.createElement("span"), { className: "g-count", textContent: String(items.length) });
-      const info = document.createElement("span"); info.className = "g-info";
+      const sum = el("summary");
+      const bar = el("span", "g-bar");
+      const text = el("span", "g-text");
+      const n = items.length;
+      text.append(el("span", "g-title", label),
+        el("span", "g-meta", `${n} ${n === 1 ? "sensor" : "sensores"} · ${live.length} ${live.length === 1 ? "reciente" : "recientes"}`));
+      const range = el("span", "g-range");
       if (live.length) {
         const vs = live.map((s) => s.latest.v);
         const lo = Math.min(...vs), hi = Math.max(...vs);
-        const chip = document.createElement("span"); chip.className = "g-chip";
-        chip.style.background = `linear-gradient(90deg, ${color(lo)}, ${color(hi)})`;
-        info.append(chip, `${live.length} con datos recientes · ${lo === hi ? fmt(lo) : `${fmt(lo)}–${fmt(hi)}`} °C`);
-        sum.append(title, count, info);
-      } else {
-        info.textContent = "sin datos recientes";
-        sum.append(title, count, info);
-      }
-      const ul = document.createElement("ul"); ul.className = "list";
-      for (const s of items) ul.append(card(s, staleH));
+        range.textContent = lo === hi ? `${fmt(lo)} °C` : `${fmt(lo)}–${fmt(hi)} °C`;
+        bar.style.background = `linear-gradient(180deg, ${color(hi)}, ${color(lo)})`;
+      } else { range.textContent = "—"; range.classList.add("none"); }
+      sum.append(bar, text, range);
+      sum.insertAdjacentHTML("beforeend", CHEVRON);
+
+      const ul = el("ul", "rows");
+      for (const s of items) ul.append(row(s, staleH));
       det.append(sum, ul);
       root.append(det);
     }
