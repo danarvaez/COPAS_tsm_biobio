@@ -138,31 +138,74 @@
   function hideTip() { tip?.remove(); }
 
   // ── cards ──
+  // Categorías de la lista (mismo orden y nombres que la tabla de la página)
+  const CATEGORIES = [
+    ["copas", "Boyas COPAS"],
+    ["fvon", "Barcos pesqueros (Fondef-COPAS-FVON)"],
+    ["shoa", "Estaciones SHOA"],
+    ["gdp", "Boyas de deriva (GDP)"],
+    ["buques", "Buques VOS y otros buques"],
+    ["argo", "Flotadores Argo"],
+    ["otros", "Otras fuentes"],
+  ];
+  const openGroups = new Set(); // recuerda qué grupos están abiertos entre actualizaciones
+
+  function card(s, staleH) {
+    const li = document.createElement("li"); li.className = "card";
+    const name = Object.assign(document.createElement("div"), { className: "name", textContent: s.name });
+    const val = document.createElement("div"); val.className = "val";
+    const src = Object.assign(document.createElement("div"), { className: "src", textContent: s.source });
+    const age = document.createElement("div"); age.className = "age";
+    if (s.latest) {
+      const stale = isStale(s, staleH);
+      val.textContent = `${fmt(s.latest.v)}°`;
+      val.style.background = color(s.latest.v);
+      if (stale) { val.classList.add("stale"); age.classList.add("stale"); }
+      age.textContent = `${localTime(s.latest.t)} · ${ago(s.latest.t)}${stale ? " (sin datos recientes)" : ""}`;
+    } else { val.textContent = "—"; val.classList.add("stale"); }
+    li.append(name, val, src, age);
+    if (s.series?.length > 1) li.append(spark(s.series));
+    if (s.error) li.append(Object.assign(document.createElement("div"), { className: "err", textContent: s.error }));
+    li.addEventListener("click", () => {
+      const m = markers[s.id]; if (!m) return;
+      map.setView(m.getLatLng(), 11); m.openPopup();
+      $("map").scrollIntoView({ behavior: "smooth", block: "center" });
+    });
+    return li;
+  }
+
   function drawList(sensors, staleH) {
-    const ul = $("list"); ul.replaceChildren();
-    const sorted = [...sensors].sort((a, b) => (a.latest ? 0 : 1) - (b.latest ? 0 : 1) || a.name.localeCompare(b.name));
-    for (const s of sorted) {
-      const li = document.createElement("li"); li.className = "card";
-      const name = Object.assign(document.createElement("div"), { className: "name", textContent: s.name });
-      const val = document.createElement("div"); val.className = "val";
-      const src = Object.assign(document.createElement("div"), { className: "src", textContent: s.source });
-      const age = document.createElement("div"); age.className = "age";
-      if (s.latest) {
-        const stale = isStale(s, staleH);
-        val.textContent = `${fmt(s.latest.v)}°`;
-        val.style.background = color(s.latest.v);
-        if (stale) { val.classList.add("stale"); age.classList.add("stale"); }
-        age.textContent = `${localTime(s.latest.t)} · ${ago(s.latest.t)}${stale ? " (sin datos recientes)" : ""}`;
-      } else { val.textContent = "—"; val.classList.add("stale"); }
-      li.append(name, val, src, age);
-      if (s.series?.length > 1) li.append(spark(s.series));
-      if (s.error) li.append(Object.assign(document.createElement("div"), { className: "err", textContent: s.error }));
-      li.addEventListener("click", () => {
-        const m = markers[s.id]; if (!m) return;
-        map.setView(m.getLatLng(), 11); m.openPopup();
-        $("map").scrollIntoView({ behavior: "smooth", block: "center" });
-      });
-      ul.append(li);
+    const root = $("list"); root.replaceChildren();
+    const known = new Set(CATEGORIES.map(([k]) => k));
+    for (const [key, label] of CATEGORIES) {
+      const items = sensors.filter((s) => (known.has(s.category) ? s.category : "otros") === key);
+      if (!items.length) continue;
+      items.sort((a, b) => (a.latest ? 0 : 1) - (b.latest ? 0 : 1) || a.name.localeCompare(b.name, "es", { numeric: true }));
+      const live = items.filter((s) => s.latest && !isStale(s, staleH));
+
+      const det = document.createElement("details");
+      det.className = "group"; det.open = openGroups.has(key);
+      det.addEventListener("toggle", () => (det.open ? openGroups.add(key) : openGroups.delete(key)));
+
+      const sum = document.createElement("summary");
+      const title = Object.assign(document.createElement("span"), { className: "g-title", textContent: label });
+      const count = Object.assign(document.createElement("span"), { className: "g-count", textContent: String(items.length) });
+      const info = document.createElement("span"); info.className = "g-info";
+      if (live.length) {
+        const vs = live.map((s) => s.latest.v);
+        const lo = Math.min(...vs), hi = Math.max(...vs);
+        const chip = document.createElement("span"); chip.className = "g-chip";
+        chip.style.background = `linear-gradient(90deg, ${color(lo)}, ${color(hi)})`;
+        info.append(chip, `${live.length} con datos recientes · ${lo === hi ? fmt(lo) : `${fmt(lo)}–${fmt(hi)}`} °C`);
+        sum.append(title, count, info);
+      } else {
+        info.textContent = "sin datos recientes";
+        sum.append(title, count, info);
+      }
+      const ul = document.createElement("ul"); ul.className = "list";
+      for (const s of items) ul.append(card(s, staleH));
+      det.append(sum, ul);
+      root.append(det);
     }
   }
 

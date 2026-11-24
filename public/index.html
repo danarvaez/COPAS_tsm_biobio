@@ -10,7 +10,7 @@
   <link rel="icon" href="icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="icon.svg">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
-  <link rel="stylesheet" href="style.css?v=4">
+  <link rel="stylesheet" href="style.css?v=6">
 </head>
 <body>
   <div class="logos">
@@ -41,14 +41,38 @@
   <div id="map" role="region" aria-label="Mapa de sensores"></div>
   <div class="legend" id="legend"></div>
 
-  <ul id="list" class="list"></ul>
+  <!-- ═══════════════════════════════════════════════════════════════════
+       TABLA "¿Por qué algunos círculos están en gris?"
+       Para editarla: cambia el texto de las filas <tr> de abajo.
+       Si cambias un límite en sensors.config.mjs (staleAfterHours),
+       actualiza también aquí la columna "Gris después de".
+       ═══════════════════════════════════════════════════════════════════ -->
+  <details class="info">
+    <summary>¿Por qué algunos círculos están en gris?</summary>
+    <p>Un sensor se muestra en gris cuando su último dato es más antiguo que el límite de su tipo de fuente. No indica mala calidad: es la última medición real, pero ya no es reciente. Los sensores en gris no cuentan en el promedio regional.</p>
+    <table>
+      <thead>
+        <tr><th>Fuente</th><th>Gris después de</th><th>Por qué</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Boyas COPAS (Coliumo, POSAR, Coronel)</td><td>6 horas</td><td>Reportan cada 30–60 min; 6 h sin datos indica un problema.</td></tr>
+        <tr><td>Barcos pesqueros (Fondef-COPAS-FVON)</td><td>3 días</td><td>Solo miden durante los lances de pesca.</td></tr>
+        <tr><td>Estaciones SHOA</td><td>6 horas</td><td>Envían un dato por minuto.</td></tr>
+        <tr><td>Boyas de deriva (GDP)</td><td>1 día</td><td>Reportan cada hora, pero el GTS puede atrasarse.</td></tr>
+        <tr><td>Buques VOS y otros buques</td><td>2 días</td><td>Reportan cada 3–6 h y solo mientras navegan por la zona.</td></tr>
+        <tr><td>Flotadores Argo</td><td>11 días</td><td>Suben a la superficie una vez cada ~10 días.</td></tr>
+      </tbody>
+    </table>
+  </details>
+
+  <div id="list" class="groups"></div>
 
   <footer class="foot">
     <p class="credit">Creado por D. Narváez (<a href="mailto:dnarvaez@oceanografia.udec.cl">dnarvaez@oceanografia.udec.cl</a>)</p>
-    <span id="count"></span> · Datos: Sofar Spotter API, SHOA (Red Mareográfica), ERDDAP, FVON, GTS vía NOAA OSMC (Global Drifter Program, Argo, buques VOS) · Batimetría: GEBCO Compilation Group (2026) GEBCO_2026 Grid
+    <span id="count"></span> · Datos: Boyas COPAS, Barcos pesqueros (Fondef-COPAS-FVON), SHOA (Red Mareográfica), ERDDAP, GTS vía NOAA OSMC (Global Drifter Program, Argo, buques VOS) · Batimetría: GEBCO Compilation Group (2026) GEBCO_2026 Grid
   </footer>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
-  <script src="app.js?v=4"></script>
+  <script src="app.js?v=7"></script>
 </body>
 </html>
