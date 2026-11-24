@@ -22,14 +22,13 @@ export default {
   // Token comes from the SOFAR_TOKEN environment variable.
   sofar: {
     enabled: true,
-    // true: también se agregan todas las boyas de tu cuenta que estén dentro de la región.
-    autoDiscover: true,
-    // Boyas que se muestran SIEMPRE (aunque no estén en tu cuenta, estén fuera de la
-    // región o no tengan datos recientes; en ese caso la tarjeta muestra un aviso).
-    spotters: [
-      { id: "SPOT-31491C" },
-      // { id: "SPOT-1234", name: "Bahía de Concepción" },
-    ],
+    // Solo se muestran las boyas listadas (Coliumo, POSAR, Coronel).
+    autoDiscover: false,
+    // Los números de serie NO van aquí (el repositorio es público). Se leen del secret
+    // SOFAR_SPOTTERS de GitHub, con el formato:
+    //   Coliumo=SPOT-XXXXXX;POSAR=SPOT-YYYYYY;Coronel=SPOT-ZZZZZZ
+    // Esta lista solo se usa si ese secret no existe (por ejemplo, pruebas locales sin .env).
+    spotters: [],
   },
 
   // ── ERDDAP datasets ────────────────────────────────────────
