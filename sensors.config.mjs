@@ -31,25 +31,44 @@ export default {
     spotters: [],
   },
 
+  // ── SHOA – Red Mareográfica Nacional (sensor de temperatura del agua) ──
+  // Misma fuente que el visualizador de TSM del SHOA. Códigos disponibles en la zona:
+  // CONST Constitución, COLI Coliumo, QUIR Isla Quiriquina, TALC Talcahuano,
+  // CRNL Coronel, LEBU Lebu, NTUE Nehuentué (BOYE Boyeruca, más al norte).
+  shoa: {
+    enabled: true,
+    stations: ["CONST", "COLI", "QUIR", "TALC", "CRNL", "LEBU", "NTUE"],
+    historyHours: 48,
+    staleAfterHours: 6,
+    validRange: [5, 25],
+  },
+
   // ── ERDDAP datasets ────────────────────────────────────────
   // One entry per sensor/station. Find these values on your ERDDAP
   // server's dataset page (…/erddap/tabledap/<datasetId>.html).
   erddap: [
-    // Global Drifter Program – boyas de deriva (tiempo casi real, vía GTS) desde el ERDDAP de
-    // NOAA OSMC. Último valor de cada boya que haya pasado por 35–38°S, 70–80°W.
+    // GTS (Global Telecommunication System) vía el ERDDAP de NOAA OSMC: último valor de TSM de
+    // cada plataforma que haya pasado por 30–42°S, 70–90°W. Incluye boyas de deriva del Global
+    // Drifter Program, flotadores Argo (temperatura más somera del perfil) y buques de observación
+    // voluntaria (VOS). Los tipos son los valores exactos de platform_type en OSMC.
     {
-      name: "Deriva GDP",
-      sourceLabel: "Global Drifter Program (NOAA OSMC)",
+      name: "GTS",
       server: "https://osmc.noaa.gov/erddap",
       datasetId: "OSMC_30day",
       mode: "latestByPlatform",
       tempVar: "sst",
-      groupVar: "platform_code",             // ID WMO de cada boya
-      filters: { platform_type: "DRIFTING BUOYS (GENERIC)" },
-      bbox: [-42, -90, -30, -70],            // [sur, oeste, norte, este]
+      groupVar: "platform_code",
+      typeVar: "platform_type",
+      types: {
+        "DRIFTING BUOYS":               { label: "Boya de deriva", source: "Global Drifter Program (GTS · NOAA OSMC)", staleAfterHours: 24 },
+        "PROFILING FLOATS AND GLIDERS": { label: "Flotador Argo",  source: "Argo (GTS · NOAA OSMC)",                   staleAfterHours: 24 * 11 },
+        "VOLUNTEER OBSERVING SHIPS":    { label: "Buque VOS",      source: "Buque de observación voluntaria (GTS)",    staleAfterHours: 48 },
+        "SHIPS":                        { label: "Buque",          source: "Buque (GTS · NOAA OSMC)",                  staleAfterHours: 48 },
+        "MOORED BUOYS":                 { label: "Boya fondeada",  source: "Boya fondeada (GTS · NOAA OSMC)",          staleAfterHours: 24 },
+      },
+      bbox: [-42, -90, -30, -70],            // [sur, oeste, norte, este] = 30–42°S, 70–90°W
       validRange: [5, 25],                   // °C
-      historyHours: 24 * 7,                  // buscar la última lectura en los últimos 7 días
-      staleAfterHours: 24,                   // gris si la boya no reporta hace más de 1 día
+      historyHours: 24 * 10,                 // Argo perfila cada ~10 días
     },
     // FVON – perfiles de temperatura de sensores en artes de pesca (tiempo casi real).
     // Plataformas móviles: por cada embarcación (WMO_ID) dentro de la región se muestra
