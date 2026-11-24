@@ -2,7 +2,7 @@
 (() => {
   const API = "data/sst.json"; // generado por la GitHub Action
   const REFRESH_MS = 5 * 60e3;
-  const T_MIN = 9, T_MAX = 17; // colour scale range, °C
+  const T_MIN = 9, T_MAX = 20; // colour scale range, °C
 
   const $ = (id) => document.getElementById(id);
   let map, layer, markers = {};
