@@ -46,7 +46,7 @@ export default {
       tempVar: "sst",
       groupVar: "platform_code",             // ID WMO de cada boya
       filters: { platform_type: "DRIFTING BUOYS (GENERIC)" },
-      bbox: [-38, -80, -35, -70],            // [sur, oeste, norte, este]
+      bbox: [-42, -90, -30, -70],            // [sur, oeste, norte, este]
       validRange: [5, 25],                   // °C
       historyHours: 24 * 7,                  // buscar la última lectura en los últimos 7 días
       staleAfterHours: 24,                   // gris si la boya no reporta hace más de 1 día
