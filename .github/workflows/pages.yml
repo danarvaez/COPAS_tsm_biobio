@@ -2,7 +2,7 @@ name: Actualizar y publicar TSM Biobio
 
 on:
   schedule:
-    - cron: "*/30 * * * *"
+    - cron: "*/28 * * * *"
   workflow_dispatch:
   push:
     branches: [main, master]
