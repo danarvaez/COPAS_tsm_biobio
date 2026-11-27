@@ -82,6 +82,7 @@
       const b = document.createElement("b"); b.textContent = s.name;
       popup.append(b, document.createElement("br"),
         `${fmt(s.latest.v)} °C · ${ago(s.latest.t)}`, document.createElement("br"), s.source);
+      if (showCoords(s)) popup.append(document.createElement("br"), `Posición: ${coord(s.lat, s.lon)}`);
       m.bindPopup(popup);
       markers[s.id] = m; pts.push([s.lat, s.lon]);
     }
@@ -153,12 +154,19 @@
   const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
   const CHEVRON = '<svg class="g-chev" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="m9 6 6 6-6 6"/></svg>';
 
+  // Coordenadas de la última medición: solo plataformas que se desplazan
+  const SHOW_COORDS = new Set(["gdp", "buques", "argo"]);
+  const coord = (lat, lon) =>
+    `${Math.abs(lat).toFixed(2)}°${lat < 0 ? "S" : "N"} ${Math.abs(lon).toFixed(2)}°${lon < 0 ? "W" : "E"}`;
+  const showCoords = (s) => SHOW_COORDS.has(s.category) && Number.isFinite(s.lat) && Number.isFinite(s.lon);
+
   function row(s, staleH) {
     const li = el("li", "row");
     const pill = el("div", "pill");
     const text = el("div", "r-text");
     const sub = el("div", "r-sub");
     text.append(el("div", "r-name", s.name), sub);
+    if (showCoords(s)) text.append(el("div", "r-coord", `Posición: ${coord(s.lat, s.lon)}`));
     const detail = s.source.includes(" · ") ? s.source.split(" · ").slice(1).join(" · ") : "";
     if (s.latest) {
       const stale = isStale(s, staleH);
