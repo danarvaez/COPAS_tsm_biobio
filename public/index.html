@@ -83,6 +83,8 @@ body { margin: 0; background: var(--bg); color: var(--ink); padding-bottom: env(
 .g-bar { align-self: stretch; border-radius: 2px; background: var(--stale); }
 .g-text { min-width: 0; }
 .g-title { display: block; font-weight: 650; font-size: .95rem; line-height: 1.25; }
+.g-sub { display: block; font-size: .74rem; color: var(--muted); line-height: 1.3; margin-top: 1px; }
+.row.nospark { grid-template-columns: 58px 1fr 0; }
 .g-meta { display: block; font-size: .75rem; color: var(--muted); margin-top: 2px; }
 .g-range { font-size: .9rem; font-weight: 650; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .g-range.none { color: var(--muted); font-weight: 500; }
@@ -166,8 +168,8 @@ body { margin: 0; background: var(--bg); color: var(--ink); padding-bottom: env(
         <tr><th>Fuente</th><th>Gris después de</th><th>Por qué</th></tr>
       </thead>
       <tbody>
-        <tr><td>Boyas COPAS (Coliumo, POSAR, Coronel)</td><td>6 horas</td><td>Reportan cada 30–60 min; 6 h sin datos indica un problema.</td></tr>
-        <tr><td>Barcos pesqueros (Fondef-COPAS-FVON)</td><td>3 días</td><td>Solo miden durante los lances de pesca.</td></tr>
+        <tr><td>Boyas COPAS (Coliumo-DOCE, POSAR, Coronel)</td><td>6 horas</td><td>Reportan cada 30–60 min; 6 h sin datos indica un problema.</td></tr>
+        <tr><td>Embarcaciones pesqueras (Asoc. Pescadores/Armadores del Biobío - FONDEF - FVON-COPAS)</td><td>3 días</td><td>Solo miden durante los lances de pesca.</td></tr>
         <tr><td>Estaciones SHOA</td><td>6 horas</td><td>Envían un dato por minuto.</td></tr>
         <tr><td>Boyas de deriva (GDP)</td><td>1 día</td><td>Reportan cada hora, pero el GTS puede atrasarse.</td></tr>
         <tr><td>Buques VOS y otros buques</td><td>2 días</td><td>Reportan cada 3–6 h y solo mientras navegan por la zona.</td></tr>
@@ -184,10 +186,10 @@ body { margin: 0; background: var(--bg); color: var(--ink); padding-bottom: env(
 
   <footer class="foot">
     <p class="credit">Creado por Diego Narváez (<a href="mailto:dnarvaez@oceanografia.udec.cl">dnarvaez@oceanografia.udec.cl</a>)</p>
-    <span id="count"></span> · Datos: Boyas COPAS, Barcos pesqueros (Fondef-COPAS-FVON), SHOA (Red Mareográfica), ERDDAP, GTS vía NOAA OSMC (Global Drifter Program, Argo, buques VOS) · Batimetría: GEBCO Compilation Group (2026) GEBCO_2026 Grid
+    <span id="count"></span> · Datos: Boyas COPAS, Embarcaciones pesqueras (Asoc. Pescadores/Armadores del Biobío - FONDEF - FVON-COPAS), SHOA (Red Mareográfica), ERDDAP, GTS vía NOAA OSMC (Global Drifter Program, Argo, buques VOS) · Batimetría: GEBCO Compilation Group (2026) GEBCO_2026 Grid
   </footer>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
-  <script src="app.js?v=9"></script>
+  <script src="app.js?v=10"></script>
 </body>
 </html>

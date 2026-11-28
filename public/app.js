@@ -142,7 +142,7 @@
   // Categorías de la lista (mismo orden y nombres que la tabla de la página)
   const CATEGORIES = [
     ["copas", "Boyas COPAS"],
-    ["fvon", "Barcos pesqueros (Fondef-COPAS-FVON)"],
+    ["fvon", "Embarcaciones pesqueras (Asoc. Pescadores/Armadores del Biobío - FONDEF - FVON-COPAS)"],
     ["shoa", "Estaciones SHOA"],
     ["gdp", "Boyas de deriva (GDP)"],
     ["buques", "Buques VOS y otros buques"],
@@ -176,7 +176,9 @@
       sub.textContent = [ago(s.latest.t), localTime(s.latest.t), detail].filter(Boolean).join(" · ");
       sub.title = `${s.source} · ${localTime(s.latest.t)}`;
     } else { pill.textContent = "—"; pill.classList.add("stale"); sub.textContent = detail || "sin datos"; }
-    li.append(pill, text, s.series?.length > 1 ? spark(s.series) : el("span"));
+    const hasSpark = s.series?.length > 1;
+    if (!hasSpark) li.classList.add("nospark");
+    li.append(pill, text, hasSpark ? spark(s.series) : el("span"));
     if (s.error) li.append(el("div", "r-err", s.error));
     li.addEventListener("click", () => {
       const m = markers[s.id]; if (!m) return;
@@ -202,7 +204,11 @@
       const bar = el("span", "g-bar");
       const text = el("span", "g-text");
       const n = items.length;
-      text.append(el("span", "g-title", label),
+      // Si el nombre trae una aclaración larga entre paréntesis, va como subtítulo
+      const m = label.match(/^(.*?)\s*\((.{13,})\)$/);
+      text.append(el("span", "g-title", m ? m[1] : label));
+      if (m) text.append(el("span", "g-sub", m[2]));
+      text.append(
         el("span", "g-meta", `${n} ${n === 1 ? "sensor" : "sensores"} · ${live.length} ${live.length === 1 ? "reciente" : "recientes"}`));
       const range = el("span", "g-range");
       if (live.length) {
