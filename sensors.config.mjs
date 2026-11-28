@@ -75,8 +75,8 @@ export default {
     // solo el último valor superficial = la lectura más somera (≤ maxDepth) de su último perfil.
     {
       name: "FVON",
-      sourceLabel: "Barcos pesqueros (Fondef-COPAS-FVON)",
-      itemName: "Barco pesquero",
+      sourceLabel: "Embarcaciones pesqueras (Asoc. Pescadores/Armadores del Biobío - FONDEF - FVON-COPAS)",
+      itemName: "Embarcación pesquera",
       category: "fvon",
       server: "https://erddap.fvon.org/erddap",
       datasetId: "FVON_Profile_FV_NRT",
